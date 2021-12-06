@@ -25,4 +25,13 @@ public class Orders implements Serializable {
 	private Integer id;
 	private Integer userId;
 	private LocalDate createdDate;
+
+	public Orders(Integer userId, LocalDate createdDate) {
+		this.userId = userId;
+		this.createdDate = createdDate;
+	}
+
+	public Orders(Integer userId) {
+		this.userId = userId;
+	}
 }
