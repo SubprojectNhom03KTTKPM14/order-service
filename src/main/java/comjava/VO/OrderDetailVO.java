@@ -10,11 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OrderDetailVO {
 
-    private ProductDTO product;
-    private Integer quantity;
-    private double totalPrice;
+	private ProductDTO product;
+	private Integer quantity;
 
-    public double totalPrice() {
-        return totalPrice = product.getPrice()*quantity;
-    }
+	public double getTotalPrice() {
+		return product.getPrice() * quantity;
+	}
 }

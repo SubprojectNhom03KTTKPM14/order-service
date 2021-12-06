@@ -1,46 +1,37 @@
 package comjava.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import comjava.dto.OrderDTO;
 import comjava.dto.OrderDetailDTO;
-import comjava.entity.Orders;
 import comjava.service.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/orders")
+@CrossOrigin
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+	@Autowired
+	private OrderService orderService;
 
-    @GetMapping
-    public String helloWorld(){
-        return "order service!";
-    }
+	@GetMapping("")
+	public List<OrderDTO> getOrders(@RequestHeader("userId") Integer userId) {
 
-    /*add order*/
-    @PostMapping("/orders")
-    public List<OrderDetailDTO> saveOrder(@RequestBody List<OrderDetailDTO> list){
-        orderService.newOrder(list,1);
-        return list;
-    }
-    /*get list order*/
-    @GetMapping("/orders")
-    public List<Orders> listOrder(){
-        List<Orders> ordersLists = orderService.getOrders();
-        return ordersLists;
-    }
+		return orderService.getOrdersByUserId(userId);
+	}
 
-//    /*get order detail*/
-    @GetMapping("/orders/{orderId}")
-    public OrderDTO findOrderById(@PathVariable("orderId") Integer orderId){
-        OrderDTO orderDTO =orderService.getOrderById(orderId);
-        System.out.println("orders"+orderDTO);
-        return orderDTO;
-    }
+	@PostMapping("")
+	public void saveOrder(@RequestHeader("userId") Integer userId, @RequestBody List<OrderDetailDTO> orderDetailDTOs) {
+
+		orderService.newOrder(orderDetailDTOs, userId);
+	}
 }

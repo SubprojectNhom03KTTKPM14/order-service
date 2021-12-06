@@ -2,11 +2,15 @@ package comjava.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,13 +29,7 @@ public class Orders implements Serializable {
 	private Integer id;
 	private Integer userId;
 	private LocalDate createdDate;
-
-	public Orders(Integer userId, LocalDate createdDate) {
-		this.userId = userId;
-		this.createdDate = createdDate;
-	}
-
-	public Orders(Integer userId) {
-		this.userId = userId;
-	}
+	
+	@OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
+	private List<OrderDetail>  orderDetails = new ArrayList<>();
 }

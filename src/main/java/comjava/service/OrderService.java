@@ -1,21 +1,17 @@
 package comjava.service;
 
+import java.util.List;
 
 import comjava.dto.OrderDTO;
 import comjava.dto.OrderDetailDTO;
-import comjava.entity.OrderDetail;
-import comjava.entity.Orders;
-
-import java.util.List;
-import java.util.Optional;
-
 
 public interface OrderService {
-    List<Orders> getOrders();
 
-    public void newOrder(List<OrderDetailDTO> list, Integer userId);
+	List<OrderDTO> getOrders();
 
-    public OrderDTO getOrderById( Integer orderId);
+	List<OrderDTO> getOrdersByUserId(Integer userId);
 
+	void newOrder(List<OrderDetailDTO> list, Integer userId);
 
+	OrderDTO getOrderById(Integer orderId);
 }
