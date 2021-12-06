@@ -24,9 +24,17 @@ public class OrderDetail implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-
 	private Integer productId;
+	private Integer quantity;
 	@ManyToOne
 	@JoinColumn(name = "order_id")
-	private Orders orderId;
+	private Orders orders;
+
+	public OrderDetail(Integer productId, Integer quantity, Orders orders) {
+		super();
+		this.productId = productId;
+		this.quantity = quantity;
+		this.orders = orders;
+	}
+
 }
