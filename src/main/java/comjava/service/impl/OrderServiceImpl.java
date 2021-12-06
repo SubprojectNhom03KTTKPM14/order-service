@@ -66,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetailVO> orderDetailVOList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             ProductDTO productDTO =
-                    restTemplate.getForObject("http://localhost:8084/product-service/products/"
+                    restTemplate.getForObject("http://localhost:8082/product-service/products/"
                                     +list.get(i).getProductId(),
                             ProductDTO.class);
             OrderDetailVO orderDetailVO =new OrderDetailVO();

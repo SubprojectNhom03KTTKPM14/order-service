@@ -9,7 +9,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/subproject_nhom03_kttkpm14
     username: root
-    password: sapassword
+    password: root
   jpa:
     properties:
       hibernate:
