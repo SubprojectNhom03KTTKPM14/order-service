@@ -25,7 +25,21 @@ spring:
       uri:
       - http://localhost:8888
 
-
+resilience4j:
+  # retry
+  retry:
+    instances:
+      basic:
+        maxAttempts: 3
+        waitDuration: 2s
+        
+  # ratelimiter
+  ratelimiter:
+    instances:
+      basic:
+        limitForPeriod: 2
+        limitRefreshPeriod: 3s
+        timeoutDuration: 1s
 
 
 

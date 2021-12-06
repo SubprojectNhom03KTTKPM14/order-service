@@ -66,6 +66,13 @@
 		</dependency>
 		<!-- End Swagger 2 -->
 
+		<!--Retry, RateLimter -->
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-spring-boot2</artifactId>
+		</dependency>
+		<!--End Retry, RateLimter -->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

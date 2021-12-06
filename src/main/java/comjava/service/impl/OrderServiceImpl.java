@@ -18,6 +18,8 @@ import comjava.entity.Orders;
 import comjava.repository.OrderDetailRepository;
 import comjava.repository.OrderRepository;
 import comjava.service.OrderService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -65,18 +67,16 @@ public class OrderServiceImpl implements OrderService {
 		orders.setCreatedDate(LocalDate.now());
 		orderRepository.save(orders);
 
-		
 		for (OrderDetailDTO o : orderDetailDTOs) {
 
 			OrderDetail orderDetail = new OrderDetail();
 			orderDetail.setProductId(o.getProductID());
 			orderDetail.setOrders(orders);
 			orderDetail.setQuantity(o.getQuantity());
-			
+
 			orders.getOrderDetails().add(orderDetail);
 		}
 
-		
 		orderRepository.save(orders);
 	}
 
@@ -90,8 +90,7 @@ public class OrderServiceImpl implements OrderService {
 
 		List<OrderDetailVO> orderDetailVOList = new ArrayList<>();
 		for (int i = 0; i < list.size(); i++) {
-			ProductDTO productDTO = restTemplate.getForObject(
-					"http://product-service/product-service/products/" + list.get(i).getProductId(), ProductDTO.class);
+			ProductDTO productDTO = this.getProductDTO(list.get(i).getProductId());
 			OrderDetailVO orderDetailVO = new OrderDetailVO();
 			orderDetailVO.setProduct(productDTO);
 			orderDetailVO.setQuantity(list.size());
@@ -99,10 +98,22 @@ public class OrderServiceImpl implements OrderService {
 		}
 		orderDTO.setOrderDetails(orderDetailVOList);
 
-		UserDTO userDTO = restTemplate.getForObject("http://user-service/user-service/users/" + orders.getUserId(),
-				UserDTO.class);
+		UserDTO userDTO = this.getUserDTO(orders.getUserId());
 		orderDTO.setUser(userDTO);
 		return orderDTO;
+	}
+
+	@Retry(name = "basic")
+	@RateLimiter(name = "basic")
+	public ProductDTO getProductDTO(Integer productId) {
+		return restTemplate.getForObject("http://product-service/product-service/products/" + productId,
+				ProductDTO.class);
+	}
+
+	@Retry(name = "basic")
+	@RateLimiter(name = "basic")
+	public UserDTO getUserDTO(Integer userId) {
+		return restTemplate.getForObject("http://user-service/user-service/users/" + userId, UserDTO.class);
 	}
 
 }
