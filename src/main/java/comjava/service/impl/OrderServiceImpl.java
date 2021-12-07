@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -31,6 +32,9 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired
 	private RestTemplate restTemplate;
 
+	@Autowired
+	private RedisTemplate<Object, Object> redisTemplate;
+
 	@Override
 	public List<OrderDTO> getOrders() {
 		List<Orders> orders = orderRepository.findAll();
@@ -41,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
 			OrderDTO orderDTO = this.getOrderById(ordersEle.getId());
 			result.add(orderDTO);
 		}
-
+		
 		return result;
 	}
 
@@ -77,29 +81,39 @@ public class OrderServiceImpl implements OrderService {
 			orders.getOrderDetails().add(orderDetail);
 		}
 
-		orderRepository.save(orders);
+		Orders ordersSave = orderRepository.save(orders);
+		this.getOrderById(ordersSave.getId());
 	}
 
 	@Override
 	public OrderDTO getOrderById(Integer orderId) {
-		OrderDTO orderDTO = new OrderDTO();
-		Orders orders = orderRepository.getById(orderId);
-		orderDTO.setId(orderId);
-		orderDTO.setCreatedDate(orders.getCreatedDate());
-		List<OrderDetail> list = orderDetailRepository.findByOrdersId(orderId);
+		OrderDTO orderDTO = (OrderDTO) redisTemplate.opsForHash().get("ORDER", orderId);
 
-		List<OrderDetailVO> orderDetailVOList = new ArrayList<>();
-		for (int i = 0; i < list.size(); i++) {
-			ProductDTO productDTO = this.getProductDTO(list.get(i).getProductId());
-			OrderDetailVO orderDetailVO = new OrderDetailVO();
-			orderDetailVO.setProduct(productDTO);
-			orderDetailVO.setQuantity(list.size());
-			orderDetailVOList.add(orderDetailVO);
+		if (orderDTO == null) {
+
+			System.out.println("== Cached order");
+			orderDTO = new OrderDTO();
+
+			Orders orders = orderRepository.getById(orderId);
+			orderDTO.setId(orderId);
+			orderDTO.setCreatedDate(orders.getCreatedDate());
+			List<OrderDetail> list = orderDetailRepository.findByOrdersId(orderId);
+
+			List<OrderDetailVO> orderDetailVOList = new ArrayList<>();
+			for (int i = 0; i < list.size(); i++) {
+				ProductDTO productDTO = this.getProductDTO(list.get(i).getProductId());
+				OrderDetailVO orderDetailVO = new OrderDetailVO();
+				orderDetailVO.setProduct(productDTO);
+				orderDetailVO.setQuantity(list.size());
+				orderDetailVOList.add(orderDetailVO);
+			}
+			orderDTO.setOrderDetails(orderDetailVOList);
+
+			UserDTO userDTO = this.getUserDTO(orders.getUserId());
+			orderDTO.setUser(userDTO);
+			redisTemplate.opsForHash().put("ORDER", orderId, orderDTO);
 		}
-		orderDTO.setOrderDetails(orderDetailVOList);
 
-		UserDTO userDTO = this.getUserDTO(orders.getUserId());
-		orderDTO.setUser(userDTO);
 		return orderDTO;
 	}
 
